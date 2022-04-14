@@ -1,2 +1,2 @@
 
-azure_groups = ["armira"]
+azure_groups = ["armira_cashflows"]
