@@ -1,0 +1,2 @@
+
+azure_groups = ["armira"]
