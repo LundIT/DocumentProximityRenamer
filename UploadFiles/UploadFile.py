@@ -6,6 +6,8 @@ class UploadFile(UploadModelMixin, ConditionalUpdateMixin, Model):
     name = TextField()
     zip_file = FileField(upload_to='upload_files/zip_file', max_length=300, null=True, blank=True)
     renaming_table = FileField(upload_to='upload_files/renaming_table', max_length=300, null=True, blank=True)
+    rename_based_on_file_name = BooleanField(default=False)
+    rename_based_on_file_content = BooleanField(default=False)
 
 
 
