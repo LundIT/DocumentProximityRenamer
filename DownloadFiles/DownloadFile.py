@@ -36,6 +36,7 @@ class DownloadFile(CalculatedModelMixin, Model):
         # read renaming_table into dataframe renamingIDs
         renamingIDs = pd.read_excel(self.upload.renaming_table, sheet_name='IDs')
         renamingIDs['Cleaned Name'] = self.clean_names(renamingIDs['Name'])
+        renamingIDs['Split Name'] = self.clean_names(renamingIDs['Name'].apply(lambda x: x.split(" ")[-1]))
         file_name_matching = {'file_name': [], 'Name': [], 'ID': []}
         if self.upload.rename_based_on_file_name:
             target_file_name = self.upload.zip_file.file.name.split(os.sep)[-1].split('.')[0]
@@ -78,10 +79,19 @@ class DownloadFile(CalculatedModelMixin, Model):
                     extracted_text += page.extract_text()
                 extracted_text = self.clean_name(extracted_text)
                 # iterate over renamingIDs and check if any of the names are in the extracted text. Add the IDs to the list if they exist
+
                 for index, row in renamingIDs.iterrows():
                     if row['Cleaned Name'] in extracted_text:
                         names.append(row['ID'])
 
+                # if no names were found, try to find the last word of the name in the extracted text
+                if len(names)==0:
+                    for index, row in renamingIDs.iterrows():
+                        if row['Split Name'] in extracted_text and len(row['Split Name'])>4:
+                            names.append(row['ID'])
+                file_name_matching['file_name'].append(file_name)
+                file_name_matching['Name'].append('')
+                file_name_matching['ID'].append(names)
                 # TODO dont just rename everything to pdf
                 target.writestr(f"{','.join(names)}.pdf", source.read(file.filename))
             target.close()
